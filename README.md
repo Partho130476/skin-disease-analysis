@@ -76,7 +76,7 @@ skin-disease-analysis/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/skin-disease-analysis.git
+git clone https://github.com/<Partho130476>/skin-disease-analysis.git
 cd skin-disease-analysis
 ```
 
