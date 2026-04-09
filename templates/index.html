@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Disease Classifier</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section, .result-section {
+            text-align: center;
+        }
+
+        .upload-section h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-control-file {
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 16px;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: #007bff;
+            display: none;
+        }
+
+        .result-section h2 {
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        /* Layout for result content */
+        .result-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .result-details, .chart-container {
+            flex: 1;
+            min-width: 300px;
+            margin: 10px;
+        }
+
+        .result-details img {
+            border-radius: 15px;
+            width: 240px;
+            height: 240px;
+            object-fit: cover;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-details p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .result-details ul {
+            list-style: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .result-details ul li {
+            background-color: #f8f9fa;
+            margin-bottom: 5px;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+        }
+
+        .chart-container canvas {
+            margin: auto;
+        }
+
+        /* Scrollbar styling */
+        .result-details ul::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .result-details ul::-webkit-scrollbar-thumb {
+            background-color: #ced4da;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 767px) {
+            .container {
+                padding: 15px;
+            }
+
+            .result-content {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .result-details, .chart-container {
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .chart-container {
+                margin-top: 30px;
+            }
+        }
+
+        /* Footer styling */
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <h1>Skin Disease Classifier</h1>
+            <p>Upload an image to classify the skin disease.</p>
+            <form action="/" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="file" class="form-control-file" id="file" name="file" required>
+                </div>
+                <div class="spinner-border" role="status" id="loading-spinner">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <button type="submit" class="btn btn-primary">Classify</button>
+            </form>
+        </div>
+
+        <!-- Result Section -->
+        {% if filename %}
+            <div class="result-section">
+                <h2>Classification Result</h2>
+                <div class="result-content">
+                    <!-- Result Details -->
+                    <div class="result-details">
+                        <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image">
+                        <p><strong>Prediction:</strong> {{ prediction }} ({{ '%.2f' % confidence }}%)</p>
+                        <h3>Class-wise Probabilities:</h3>
+                        <ul>
+                            {% for cls, prob in top_predictions %}
+                                <li>{{ cls }}: {{ '%.2f' % (prob * 100) }}%</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <!-- Pie Chart Container -->
+                    <div class="chart-container">
+                        <canvas id="probabilityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2023 Skin Disease Classifier | <a href="#contact">Contact Us:01794331671</a></p>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Show the loading spinner when the form is submitted
+        document.querySelector('form').addEventListener('submit', function() {
+            document.getElementById('loading-spinner').style.display = 'inline-block';
+        });
+
+        {% if filename %}
+        // Prepare data for the chart
+        var classNames = {{ class_names | tojson }};
+        var probabilities = {{ predictions | tojson }};
+
+        // the top N predictions
+        var topN = 5;
+        var combinedData = [];
+        for (var i = 0; i < classNames.length; i++) {
+            combinedData.push({className: classNames[i], probability: probabilities[i]});
+        }
+        // Sort data by probability 
+        combinedData.sort(function(a, b) {
+            return b.probability - a.probability;
+        });
+
+        //  top N data
+        var topClasses = combinedData.slice(0, topN).map(function(item) { return item.className; });
+        var topProbabilities = combinedData.slice(0, topN).map(function(item) { return item.probability * 100; });
+
+        // the pie chart
+        var ctx = document.getElementById('probabilityChart').getContext('2d');
+        var probabilityChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: topClasses,
+                datasets: [{
+                    data: topProbabilities,
+                    backgroundColor: [
+                        '#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        fontSize: 12,
+                        boxWidth: 12
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Top ' + topN + ' Predictions'
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                            var label = data.labels[tooltipItem.index] || '';
+                            var value = data.datasets[0].data[tooltipItem.index] || 0;
+                            return label + ': ' + value.toFixed(2) + '%';
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+    </script>
+</body>
+</html>
