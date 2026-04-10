@@ -6,7 +6,7 @@ A deep learning-based skin disease classification system that identifies **23 sk
 
 ## 📌 Overview
 
-This project was developed as a Final Year undergraduate project (B.Sc. in Computer Science & Engineering). It uses a convolutional neural network fine-tuned on the [ISIC / DermNet skin disease dataset](https://www.kaggle.com/datasets/shubhamgoel27/dermnet) to classify uploaded skin images into one of 23 disease categories, returning the top-5 predictions with confidence scores.
+This project uses a convolutional neural network fine-tuned on the [ISIC / DermNet skin disease dataset](https://www.kaggle.com/datasets/shubhamgoel27/dermnet) to classify uploaded skin images into one of 23 disease categories, returning the top-5 predictions with confidence scores.
 
 ---
 
